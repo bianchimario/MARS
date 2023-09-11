@@ -1,4 +1,5 @@
 # Multivariate Asynchronous Random Shapelets (MARS)
+
 Shapelets are time series subsequences that are maximally representative of a class [1]. <br>
 
 MARS' shapelets are:
