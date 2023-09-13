@@ -62,7 +62,7 @@ class MARS:
         Returns:
         - float: Euclidean distance between a and b.
         """
-        squared_distance = sum(np.sum((np.array(a[i]) - np.array(b[i]))**2) for i in range(len(a)))
+        squared_distance = sum((np.array(a) - np.array(b))**2)
         return np.sqrt(squared_distance)
 
     def calculate_distance(self, shapelet, time_series):
