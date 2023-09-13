@@ -13,7 +13,9 @@ Parameters:
 + top k shapelets: the shapelets extracted are ranked by Information Gain. The user can specify the number of shapelets to use.
 
 ## How to install
----
+```
+pip install git+https://github.com/bianchimario/MARS
+```
 
 ## Requirements
 + numpy
