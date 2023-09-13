@@ -216,6 +216,13 @@ class MARS:
             ranked_shapelets = ranked_shapelets[:self.top_k]
 
         return ranked_shapelets
+    
+    # Yield successive n-sized chunks from l.
+    def divide_chunks(self, l, n):
+        # Looping until length l
+        for i in range(0, len(l), n):
+            yield l[i:i + n]
+
 
     def fit_transform(self, X, y):
         """
@@ -240,7 +247,7 @@ class MARS:
         X_transformed = self.calculate_distances_for_shapelets(self.shapelets, X)
 
         # Reshape the transformed data
-        num_time_series = len(X)  # Replace with your actual number
+        num_time_series = len(X)  
         chunk_size = len(X_transformed) // num_time_series
         X_transformed = list(self.divide_chunks(X_transformed, chunk_size))
 
@@ -264,15 +271,11 @@ class MARS:
         X_transformed = self.calculate_distances_for_shapelets(self.shapelets, X)
 
         # Reshape the transformed data
-        num_time_series = len(X)  # Replace with your actual number
+        num_time_series = len(X)  
         chunk_size = len(X_transformed) // num_time_series
         X_transformed = list(self.divide_chunks(X_transformed, chunk_size))
 
         return X_transformed
     
 
-    # Yield successive n-sized chunks from l.
-    def divide_chunks(self, l, n):
-        # Looping until length l
-        for i in range(0, len(l), n):
-            yield l[i:i + n]
+
