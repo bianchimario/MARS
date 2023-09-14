@@ -3,14 +3,14 @@
 Shapelets are time series subsequences that are maximally representative of a class [1]. <br>
 
 MARS' shapelets are:
-+ Multivariate: shapelets have the same number of dimensions of the time series provided.
-+ Asynchronous: the different dimension of the shapelets can be extracted from different timestamps and they are compared with each timestamp of the time series.
++ Multivariate: shapelets have the same number of dimensions of the time series provided. The distance between a shapelet and a time series is calculated as the sum of the minimum distance for each dimension.
++ Asynchronous: (by default) the different dimension of the shapelets can be extracted from different timestamps and they are compared with each timestamp of the time series.
 + Random: shapelets are extracted randomly for the sake of computation time.
 
 Parameters:
 + time series dataset: time series must be in the Awkward [2] format.
-+ threshold: the distance between a shapelet and a time series is calculated as the sum of the minimum distance for each dimension. The user must specify a maximum distance threshold that is considered a match between a shapelet and a time series.
-+ top k shapelets: the shapelets extracted are ranked by Information Gain. The user can specify the number of shapelets to use.
++ num_shapelets:  number of random shapelets to extract from each time series.
++ shapelet_length: dimensional length of each shapelet.
 
 ## How to install
 ```
