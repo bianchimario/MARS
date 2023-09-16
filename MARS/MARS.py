@@ -49,16 +49,21 @@ class MARS:
         shapelet_length = len(shapelet[0][0])
         
         for start_pos in range(len(time_series[0][0]) - shapelet_length + 1):
+            if start_pos + shapelet_length > len(time_series[0][dim]):
+                # Skip if the slice goes out of bounds
+                continue
+
             total_distance = 0.0
-            
+
             for dim in range(len(shapelet[0])):
-                dimension_distance = np.linalg.norm(  # calculates the Euclidean distance between the vectors a and b
+                dimension_distance = np.linalg.norm(
                     shapelet[0][dim] - time_series[0][dim][start_pos:start_pos + shapelet_length]
                 )
                 total_distance += dimension_distance
-            
+
             if total_distance < min_distance:
                 min_distance = total_distance
+
         
         return min_distance
 
@@ -71,15 +76,9 @@ class MARS:
             distances_to_shapelets = []
 
             for shapelet in shapelets:
-                try:
-                    min_distance = self.calculate_shapelet_distance(shapelet, time_series)
-                    distances_to_shapelets.append(min_distance)
-                except IndexError as e:
-                    print(f"Error processing time_series: {e}")
-                    # Optionally, you can choose to continue processing other time_series
-                    # by using 'continue', or raise the exception if needed.
+                min_distance = self.calculate_shapelet_distance(shapelet, time_series)
+                distances_to_shapelets.append(min_distance)
 
             distances.append(distances_to_shapelets)
 
         return distances
-
