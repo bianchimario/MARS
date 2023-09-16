@@ -9,7 +9,7 @@ MARS' shapelets are:
 
 Parameters:
 + time series dataset: time series must be in the Awkward [2] format.
-+ num_shapelets:  number of random shapelets to extract from each time series.
++ num_permutations:  number of random shapelets to extract from each time series.
 + shapelet_length: dimensional length of each shapelet.
 
 ## How to install
