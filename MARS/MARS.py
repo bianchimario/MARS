@@ -42,19 +42,13 @@ class MARS:
 
 
     def calculate_shapelet_distance(self, shapelet, time_series):
-        '''
-        Calculates distance between a shapelet and a time series
-        '''
         min_distance = float('inf')
         shapelet_length = len(shapelet[0][0])
-        
-        for start_pos in range(len(time_series[0][0]) - shapelet_length + 1):
-            if start_pos + shapelet_length > len(time_series[0][dim]):
-                # Skip if the slice goes out of bounds
-                continue
 
+        for start_pos in range(len(time_series[0][0]) - shapelet_length + 1):
             total_distance = 0.0
 
+            # Ensure that you stay within the valid range for each dimension.
             for dim in range(len(shapelet[0])):
                 dimension_distance = np.linalg.norm(
                     shapelet[0][dim] - time_series[0][dim][start_pos:start_pos + shapelet_length]
@@ -64,8 +58,8 @@ class MARS:
             if total_distance < min_distance:
                 min_distance = total_distance
 
-        
         return min_distance
+
 
 
 
