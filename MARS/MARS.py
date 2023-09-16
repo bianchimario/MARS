@@ -17,7 +17,7 @@ class MARS:
 
         num_dimensions = len(time_series[0])
         #max_window_length = len(time_series[0][0])
-        max_window_length = min([len(e) for e in time_series[0]]) # length of the shortes dimension
+        max_window_length = min([len(e) for e in time_series[0]]) # length of the shortest dimension
 
         if self.shapelet_length > max_window_length:
             raise ValueError("Shapelet length is greater than the length of the time series dimensions. "
@@ -31,7 +31,7 @@ class MARS:
             for dim_idx in range(num_dimensions): # for every dimension
                 window_length = self.shapelet_length
                 
-                window_indices = random.randint(0, max_window_length - window_length) # index from zero to last possible position
+                window_indices = random.randint(0, max_window_length-1 - window_length) # index from zero to last possible position
                 
                 window = [ts[dim_idx][window_indices:window_indices + window_length] for ts in time_series]
                 shapelet.append(window)
