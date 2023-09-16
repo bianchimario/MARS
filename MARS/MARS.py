@@ -31,7 +31,7 @@ class MARS:
             for dim_idx in range(num_dimensions): # for every dimension
                 window_length = self.shapelet_length
                 
-                window_indices = random.randint(0, max_window_length-1 - window_length) # index from zero to last possible position
+                window_indices = random.randint(0, max_window_length - window_length) # index from zero to last possible position
                 
                 window = [ts[dim_idx][window_indices:window_indices + window_length] for ts in time_series]
                 shapelet.append(window)
@@ -71,9 +71,15 @@ class MARS:
             distances_to_shapelets = []
 
             for shapelet in shapelets:
-                min_distance = self.calculate_shapelet_distance(shapelet, time_series)
-                distances_to_shapelets.append(min_distance)
+                try:
+                    min_distance = self.calculate_shapelet_distance(shapelet, time_series)
+                    distances_to_shapelets.append(min_distance)
+                except IndexError as e:
+                    print(f"Error processing time_series: {e}")
+                    # Optionally, you can choose to continue processing other time_series
+                    # by using 'continue', or raise the exception if needed.
 
             distances.append(distances_to_shapelets)
 
         return distances
+
