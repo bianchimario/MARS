@@ -1,78 +1,61 @@
-import random
 import numpy as np
+import random
 
-class MARS:
-    def __init__(self, shapelet_length, num_permutations, same_start=False, seed=None):
-        self.shapelet_length = shapelet_length
-        self.num_permutations = num_permutations
-        self.same_start = same_start
-        self.seed = seed
+def get_shapelets(time_series_dataset, num_shapelets, len_shapelets, async_shapelets=True, seed=None):
+    if seed is not None:
+        random.seed(seed)
 
-    def get_shapelets(self, time_series):
-        '''
-        Extracts multivariate shapelets
-        '''
-        if self.seed is not None:
-            random.seed(self.seed)
+    dims = len(time_series_dataset[0])
+    max_length = min([len(e) for e in time_series_dataset[0]]) # length of the shortest dimension
 
-        num_dimensions = len(time_series[0])
-        #max_window_length = len(time_series[0][0])
-        max_window_length = min([len(e) for e in time_series[0]]) # length of the shortest dimension
+    shapelets = []
 
-        if self.shapelet_length > max_window_length:
-            raise ValueError("Shapelet length is greater than the length of the time series dimensions. "
-                             "Please specify a valid shapelet length.")
+    if len_shapelets>max_length:
+        raise ValueError("Shapelet length is greater than the length of the shortest dimension.")
+    
+    for ts in time_series_dataset:
+        
+        if async_shapelets:
+            for _ in range(0,num_shapelets): 
+                single_shapelet = []
+                for dim in range(0,dims): # async: new starting point for each dimension
+                    start_idx = random.randint(0,len(ts[dim]) - len_shapelets)
+                    single_shapelet.append(ts[dim][start_idx:start_idx+len_shapelets])
+                shapelets.append(single_shapelet)
 
-        sliding_windows = [] # each element of sliding_windows represents a shapelet for a specific permutation
+        else:
+            for _ in range(0,num_shapelets):
+                start_idx = random.randint(0, max_length - len_shapelets) # index from zero to last possible position
+                single_shapelet = [ts[dim][start_idx:start_idx+len_shapelets] for dim in range(0,dims)]
+                shapelets.append(single_shapelet)
 
-        for _ in range(self.num_permutations): # for every shapelet created from a time series
-            shapelet = [] # it represents one set of sliding windows for all dimensions of the MTS
-
-            for dim_idx in range(num_dimensions): # for every dimension
-                window_length = self.shapelet_length
-                
-                window_indices = random.randint(0, max_window_length - window_length) # index from zero to last possible position
-                
-                window = [ts[dim_idx][window_indices:window_indices + window_length] for ts in time_series]
-                shapelet.append(window)
-
-            sliding_windows.append(shapelet)
-
-        return sliding_windows
+    return shapelets
 
 
-    def calculate_shapelet_distance(self, shapelet, time_series):
-        min_distance = float('inf')
-        shapelet_length = len(shapelet[0][0])
+def get_distance(time_series, shapelet): # distance between univariate time series and shapelet
+    max_idx = len(time_series) - len(shapelet)
+    min_dist = float('inf')
+    
+    for i in range(0, max_idx):
+        distance = np.linalg.norm(time_series[i:i+len(shapelet)] - shapelet) # euclidean distance
+        if distance < min_dist:
+            min_dist = distance
 
-        for start_pos in range(len(time_series[0][0]) - shapelet_length + 1):
-            total_distance = 0.0
-
-            # Ensure that you stay within the valid range for each dimension.
-            for dim in range(len(shapelet[0])):
-                dimension_distance = np.linalg.norm(
-                    shapelet[0][dim] - time_series[0][dim][start_pos:start_pos + shapelet_length]
-                )
-                total_distance += dimension_distance
-
-            if total_distance < min_distance:
-                min_distance = total_distance
-
-        return min_distance
+    return distance
 
 
+def transform(time_series_dataset, shapelets):
+    dims = len(time_series_dataset[0])
 
+    distances_dataset = []
 
-    def get_distances(self, shapelets, time_series_dataset):
-        distances = []
+    for ts in time_series_dataset:
+        ts_distances = [] # list of distances from a time series to all the shapelets
+        for shapelet in shapelets:
+            tot_dist = 0 # distance from ts to single shapelet
+            for dim in range(0,dims):
+                dim_dist = get_distance(ts[dim],shapelet[dim]) # distance on each dimension
+                tot_dist += dim_dist
+            distances_dataset.append(ts_distances)
 
-        for time_series in time_series_dataset:
-            distances_to_shapelets = []
-
-            for shapelet in shapelets:
-                min_distance = self.calculate_shapelet_distance(shapelet, time_series)
-                distances_to_shapelets.append(min_distance)
-
-            distances.append(distances_to_shapelets)
-
-        return distances
+    return distances_dataset
