@@ -1,1 +1,1 @@
-from .MARS import MARS
+from .MARS import get_distances, get_shapelets
