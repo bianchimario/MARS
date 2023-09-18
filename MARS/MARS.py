@@ -41,7 +41,7 @@ def get_distance(time_series, shapelet): # distance between univariate time seri
         if distance < min_dist:
             min_dist = distance
 
-    return distance
+    return min_dist
 
 
 def transform(time_series_dataset, shapelets):
