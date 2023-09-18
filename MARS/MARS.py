@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.spatial import distance
 import random
 
 def get_shapelets(time_series_dataset, num_shapelets, len_shapelets, async_shapelets=True, seed=None):
@@ -37,14 +38,14 @@ def get_distance(time_series, shapelet): # distance between univariate time seri
     min_dist = float('inf')
     
     for i in range(0, max_idx):
-        distance = np.linalg.norm(time_series[i:i+len(shapelet)] - shapelet) # euclidean distance
-        if distance < min_dist:
-            min_dist = distance
+        dist = distance.euclidean(time_series[i:i+len(shapelet)], shapelet) # euclidean distance
+        if dist < min_dist:
+            min_dist = dist
 
     return min_dist
 
 
-def transform(time_series_dataset, shapelets):
+def get_distances(time_series_dataset, shapelets):
     dims = len(time_series_dataset[0])
 
     distances_dataset = []
@@ -56,6 +57,7 @@ def transform(time_series_dataset, shapelets):
             for dim in range(0,dims):
                 dim_dist = get_distance(ts[dim],shapelet[dim]) # distance on each dimension
                 tot_dist += dim_dist
-            distances_dataset.append(ts_distances)
+            ts_distances.append(tot_dist)
+        distances_dataset.append(ts_distances)
 
     return distances_dataset
