@@ -71,7 +71,7 @@ def get_distance(time_series, shapelet): # distance between univariate time seri
     min_dist = float('inf')
     
     for i in range(0, max_idx):
-        dist = distance.seuclidean(time_series[i:i+len(shapelet)], shapelet) # standardized euclidean distance
+        dist = distance.euclidean(time_series[i:i+len(shapelet)], shapelet) # standardized euclidean distance
         if dist < min_dist:
             min_dist = dist
 
