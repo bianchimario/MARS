@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.spatial import distance
 import random
+from numba import njit, prange
 
 
 # ---------------------------------- Getting Shapelets ----------------------------------
@@ -106,14 +107,15 @@ def get_distances(time_series_dataset, shapelets):
 
 # --------------------------- Calculating distances (non-asynchronous shapelets) ---------------------------
 
+@njit(parallel=True)
 def get_distance_sync(multivariate_time_series, dimensions, shapelet):
     shapelet_length = len(shapelet[0])
     max_idx = len(multivariate_time_series[0]) - shapelet_length
     min_dist = float('inf')
 
     flat_shapelet = np.ravel(shapelet) # flattening array
-    for idx in range(0, max_idx):
-        subsequence = np.ravel([multivariate_time_series[dim][idx:idx+shapelet_length] for dim in range(0,dimensions)])
+    for idx in prange(0, max_idx):
+        subsequence = np.ravel([multivariate_time_series[dim][idx:idx+shapelet_length] for dim in prange(0,dimensions)])
         flat_subsequence = np.ravel(subsequence) # flattening array
         #dist = distance.euclidean(flat_subsequence, flat_shapelet)
         dist = np.linalg.norm(flat_subsequence - flat_shapelet)
@@ -123,7 +125,7 @@ def get_distance_sync(multivariate_time_series, dimensions, shapelet):
     return min_dist
 
 
-
+@njit(parallel=True)
 def get_multivariate_distances(time_series_dataset, shapelets):
     dims = len(shapelets[0])
     distances_dataset = []
