@@ -83,7 +83,8 @@ def get_distances(time_series_dataset, shapelets):
 
     distances_dataset = []
 
-    for ts in time_series_dataset:
+    for idx,ts in enumerate(time_series_dataset):
+        print('Calculating distances for TS n. ', idx)
         ts_distances = [] # list of distances from a time series to all the shapelets
         for shapelet in shapelets:
             tot_dist = 0 # distance from ts to single shapelet
