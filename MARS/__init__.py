@@ -1,1 +1,1 @@
-from .MARS import get_distances, get_shapelets, get_random_shapelets
+from .MARS import *

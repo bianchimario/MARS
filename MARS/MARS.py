@@ -77,8 +77,8 @@ def get_distance(time_series, shapelet): # distance between univariate time seri
     min_dist = float('inf')
     
     for i in range(0, max_idx):
-        #dist = distance.euclidean(time_series[i:i+shapelet_len], shapelet) # euclidean distance
-        dist = np.linalg.norm(time_series[i:i+shapelet_len] - shapelet)
+        dist = distance.euclidean(time_series[i:i+shapelet_len], shapelet) # euclidean distance
+        #dist = np.linalg.norm(time_series[i:i+shapelet_len] - shapelet)
         if dist < min_dist:
             min_dist = dist
 
@@ -101,4 +101,39 @@ def get_distances(time_series_dataset, shapelets):
             ts_distances.append(tot_dist)
         distances_dataset.append(ts_distances)
 
+    return distances_dataset
+
+
+# --------------------------- Calculating distances (non-asynchronous shapelets) ---------------------------
+
+def get_distance_sync(multivariate_time_series, dimensions, shapelet):
+    shapelet_length = len(shapelet[0])
+    max_idx = len(multivariate_time_series[0]) - shapelet_length
+    min_dist = float('inf')
+
+    flat_shapelet = np.ravel(shapelet) # flattening array
+    for idx in range(0, max_idx):
+        subsequence = np.ravel([multivariate_time_series[dim][idx:idx+shapelet_length] for dim in range(0,dimensions)])
+        flat_subsequence = np.ravel(subsequence) # flattening array
+        #dist = distance.euclidean(flat_subsequence, flat_shapelet)
+        dist = np.linalg.norm(flat_subsequence - flat_shapelet)
+        if dist < min_dist:
+            min_dist = dist
+
+    return min_dist
+
+
+
+def get_multivariate_distances(time_series_dataset, shapelets):
+    dims = len(shapelets[0])
+    distances_dataset = []
+
+    for idx,ts in enumerate(time_series_dataset):
+        print('Calculating distances for TS #', idx)
+        ts_distances = [] # list of distances from a time series to all the shapelets
+        for shapelet in shapelets:
+            dist = get_distance_sync(ts, dims, shapelet)
+            ts_distances.append(dist)
+        distances_dataset.append(ts_distances)
+            
     return distances_dataset
