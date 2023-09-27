@@ -2,6 +2,9 @@ import numpy as np
 from scipy.spatial import distance
 import random
 
+
+# ---------------------------------- Getting Shapelets ----------------------------------
+
 def get_shapelets(time_series_dataset, num_shapelets, len_shapelets, async_shapelets=True, seed=None):
     if seed is not None:
         random.seed(seed)
@@ -66,12 +69,15 @@ def get_random_shapelets(time_series_dataset, num_shapelets, max_len, min_len, a
     return shapelets
 
 
+# ---------------------------------- Calculating distances ----------------------------------
+
 def get_distance(time_series, shapelet): # distance between univariate time series and shapelet
+    shapelet_len = len(shapelet)
     max_idx = len(time_series) - len(shapelet)
     min_dist = float('inf')
     
     for i in range(0, max_idx):
-        dist = distance.euclidean(time_series[i:i+len(shapelet)], shapelet) # standardized euclidean distance
+        dist = distance.euclidean(time_series[i:i+shapelet_len], shapelet) # standardized euclidean distance
         if dist < min_dist:
             min_dist = dist
 
@@ -84,7 +90,7 @@ def get_distances(time_series_dataset, shapelets):
     distances_dataset = []
 
     for idx,ts in enumerate(time_series_dataset):
-        print('Calculating distances for TS n. ', idx)
+        print('Calculating distances for TS #', idx)
         ts_distances = [] # list of distances from a time series to all the shapelets
         for shapelet in shapelets:
             tot_dist = 0 # distance from ts to single shapelet
