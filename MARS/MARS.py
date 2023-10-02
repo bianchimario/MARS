@@ -117,8 +117,8 @@ def get_distance_sync(multivariate_time_series, dimensions, shapelet):
     for idx in range(0, max_idx):
         subsequence = np.ravel([multivariate_time_series[dim][idx:idx+shapelet_length] for dim in range(0,dimensions)])
         flat_subsequence = np.ravel(subsequence) # flattening array
-        #dist = distance.euclidean(flat_subsequence, flat_shapelet)
-        dist = np.linalg.norm(flat_subsequence - flat_shapelet)
+        dist = distance.euclidean(flat_subsequence, flat_shapelet)
+        #dist = np.linalg.norm(flat_subsequence - flat_shapelet)
         if dist < min_dist:
             min_dist = dist
 
