@@ -1,8 +1,6 @@
 import numpy as np
 from scipy.spatial import distance
 import random
-from numba import jit
-
 
 # ---------------------------------- Getting Shapelets ----------------------------------
 
@@ -107,8 +105,10 @@ def get_distances(time_series_dataset, shapelets):
 
 # --------------------------- Calculating distances (non-asynchronous shapelets) ---------------------------
 
-@jit
 def get_distance_sync(multivariate_time_series, dimensions, shapelet):
+    '''
+    It does not work for asynchronous shapelets
+    '''
     shapelet_length = len(shapelet[0])
     max_idx = len(multivariate_time_series[0]) - shapelet_length
     min_dist = float('inf')
@@ -125,7 +125,6 @@ def get_distance_sync(multivariate_time_series, dimensions, shapelet):
     return min_dist
 
 
-@jit
 def get_multivariate_distances(time_series_dataset, shapelets):
     dims = len(shapelets[0])
     distances_dataset = []
