@@ -70,71 +70,37 @@ def get_random_shapelets(time_series_dataset, num_shapelets, max_len, min_len, a
 
 # ---------------------------------- Calculating distances ----------------------------------
 
-def get_distance(time_series, shapelet): # distance between univariate time series and shapelet
+def get_distance(time_series, shapelet):
     shapelet_len = len(shapelet)
-    max_idx = len(time_series) - len(shapelet)
-    min_dist = float('inf')
     
-    for i in range(0, max_idx):
-        #dist = distance.euclidean(time_series[i:i+shapelet_len], shapelet) # euclidean distance
-        dist = np.linalg.norm(time_series[i:i+shapelet_len] - shapelet)
-        if dist < min_dist:
-            min_dist = dist
-
+    # Create a sliding window view of the time_series for efficient calculation
+    time_series_windows = np.lib.stride_tricks.sliding_window_view(time_series, shapelet_len)
+    
+    # Calculate distances for all windows simultaneously
+    distances = np.linalg.norm(time_series_windows - shapelet, axis=1)
+    
+    min_dist = np.min(distances)
     return min_dist
 
 
-def get_distances(time_series_dataset, shapelets):
-    dims = len(time_series_dataset[0])
+def get_distance_multi(multivariate_time_series, multivariate_shapelet):
+    tot_dist = 0
+    for dim in range(len(multivariate_shapelet)):
+        dim_dist = get_distance(multivariate_time_series[dim], multivariate_shapelet[dim])
+        tot_dist += dim_dist
 
+    return tot_dist
+
+
+def transform(time_series_dataset, shapelets):
     distances_dataset = []
 
     for idx,ts in enumerate(time_series_dataset):
         print('Calculating distances for TS #', idx)
-        ts_distances = [] # list of distances from a time series to all the shapelets
+        ts_distances = []
         for shapelet in shapelets:
-            tot_dist = 0 # distance from ts to single shapelet
-            for dim in range(0,dims):
-                dim_dist = get_distance(ts[dim],shapelet[dim]) # distance on each dimension
-                tot_dist += dim_dist
-            ts_distances.append(tot_dist)
-        distances_dataset.append(ts_distances)
-
-    return distances_dataset
-
-
-# --------------------------- Calculating distances (non-asynchronous shapelets) ---------------------------
-
-def get_distance_sync(multivariate_time_series, dimensions, shapelet):
-    '''
-    It does not work for asynchronous shapelets
-    '''
-    shapelet_length = len(shapelet[0])
-    max_idx = len(multivariate_time_series[0]) - shapelet_length
-    min_dist = float('inf')
-
-    flat_shapelet = np.ravel(shapelet) # flattening array
-    for idx in range(0, max_idx):
-        subsequence = np.ravel([multivariate_time_series[dim][idx:idx+shapelet_length] for dim in range(0,dimensions)])
-        flat_subsequence = np.ravel(subsequence) # flattening array
-        dist = distance.euclidean(flat_subsequence, flat_shapelet)
-        #dist = np.linalg.norm(flat_subsequence - flat_shapelet)
-        if dist < min_dist:
-            min_dist = dist
-
-    return min_dist
-
-
-def get_multivariate_distances(time_series_dataset, shapelets):
-    dims = len(shapelets[0])
-    distances_dataset = []
-
-    for idx,ts in enumerate(time_series_dataset):
-        print('Calculating distances for TS #', idx)
-        ts_distances = [] # list of distances from a time series to all the shapelets
-        for shapelet in shapelets:
-            dist = get_distance_sync(ts, dims, shapelet)
+            dist = get_distance_multi(ts, shapelet)
             ts_distances.append(dist)
         distances_dataset.append(ts_distances)
-            
+
     return distances_dataset
