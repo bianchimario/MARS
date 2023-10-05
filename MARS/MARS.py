@@ -1,5 +1,4 @@
 import numpy as np
-from scipy.spatial import distance
 import random
 
 # ---------------------------------- Getting Shapelets ----------------------------------
@@ -35,7 +34,7 @@ def get_shapelets(time_series_dataset, num_shapelets, len_shapelets, async_shape
     return shapelets
 
 
-def get_random_shapelets(time_series_dataset, num_shapelets, max_len, min_len, async_shapelets=True, seed=None):
+def get_random_shapelets(time_series_dataset, num_shapelets, max_len, min_len, async_limit=None, seed=None):
     if seed is not None:
         random.seed(seed)
 
@@ -51,21 +50,93 @@ def get_random_shapelets(time_series_dataset, num_shapelets, max_len, min_len, a
     for idx in random_ts:
         ts = time_series_dataset[idx]
 
-        if async_shapelets:
+        if async_limit==None:
             single_shapelet = []
+            random_length = random.randint(min_len,max_len)
             for dim in range(0,dims): # async: new starting point for each dimension
-                    random_length = random.randint(min_len,max_len)
-                    start_idx = random.randint(0,len(ts[dim]) - random_length)
-                    single_shapelet.append(ts[dim][start_idx:start_idx+random_length])
+                start_idx = random.randint(0,len(ts[dim]) - random_length)
+                single_shapelet.append(ts[dim][start_idx:start_idx+random_length])
             shapelets.append(single_shapelet)
 
-        else:
+        elif async_limit>0:
+            single_shapelet = []
+            random_length = random.randint(min_len,max_len)
+            min_start_idx = random.randint(0, max_len - random_length)
+            max_start_idx = min_start_idx + async_limit
+            for dim in range(0,dims):
+                start_idx = random.randint(min_start_idx, max_start_idx)
+                single_shapelet.append(ts[dim][start_idx:start_idx+random_length])
+            shapelets.append(single_shapelet)
+
+        else: # async_limit<=0
             random_length = random.randint(min_len,max_len)
             start_idx = random.randint(0, max_len - random_length) # index from zero to last possible position
             single_shapelet = [ts[dim][start_idx:start_idx+random_length] for dim in range(0,dims)]
             shapelets.append(single_shapelet)
 
     return shapelets
+
+
+def get_random_shapelets_and_indexes(time_series_dataset, num_shapelets, max_len, min_len, async_limit=None, seed=None):
+    if seed is not None:
+        random.seed(seed)
+
+    dims = len(time_series_dataset[0])
+    max_possible_length = min([len(e) for e in time_series_dataset[0]]) # length of the shortest dimension
+
+    if (max_len>max_possible_length) or (min_len>max_possible_length):
+        raise ValueError("Shapelet length is greater than the length of the shortest dimension.")
+    
+    shapelets = []
+    indexes_list = []
+    random_ts = random.sample(range(0, len(time_series_dataset)), num_shapelets) # indexes of the time series that generate a shapelet
+
+    for idx in random_ts:
+        ts = time_series_dataset[idx]
+
+        if async_limit==None:
+            single_shapelet = []
+            single_shapelet_indexes = []
+            random_length = random.randint(min_len,max_len)
+            for dim in range(0,dims): # async: new starting point for each dimension
+                start_idx = random.randint(0,len(ts[dim]) - random_length)
+                single_shapelet.append(ts[dim][start_idx:start_idx+random_length])
+                single_shapelet_indexes.append(start_idx)
+            shapelets.append(single_shapelet)
+            indexes_list.append(single_shapelet_indexes)
+
+        elif async_limit>0:
+            single_shapelet = []
+            single_shapelet_indexes = []
+            random_length = random.randint(min_len,max_len)
+            min_start_idx = random.randint(0, max_len - random_length)
+            max_start_idx = min_start_idx + async_limit
+            for dim in range(0,dims):
+                start_idx = random.randint(min_start_idx, max_start_idx)
+                single_shapelet.append(ts[dim][start_idx:start_idx+random_length])
+                single_shapelet_indexes.append(start_idx)
+            shapelets.append(single_shapelet)
+            indexes_list.append(single_shapelet_indexes)
+
+        else: # async_limit<=0
+            random_length = random.randint(min_len,max_len)
+            start_idx = random.randint(0, max_len - random_length) # index from zero to last possible position
+            single_shapelet = [ts[dim][start_idx:start_idx+random_length] for dim in range(0,dims)]
+            single_shapelet_indexes = [start_idx]
+            shapelets.append(single_shapelet)
+            indexes_list.append(single_shapelet_indexes)
+
+    return shapelets, indexes_list
+
+
+def fit(time_series_dataset, num_shapelets, max_len, min_len, async_limit=None, save_indexes=False, seed=None):
+    if save_indexes==False:
+        output = get_random_shapelets(time_series_dataset, num_shapelets, max_len, min_len, async_limit, seed)
+        return output
+    
+    else:
+        output,indexes = get_random_shapelets_and_indexes(time_series_dataset, num_shapelets, max_len, min_len, async_limit, seed)
+        return output,indexes
 
 
 # ---------------------------------- Calculating distances ----------------------------------
