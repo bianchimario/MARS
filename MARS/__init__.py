@@ -1,1 +1,1 @@
-from .MARS import *
+from .MARS import MARS
