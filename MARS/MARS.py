@@ -1,6 +1,7 @@
 import numpy as np
 import random
 from sklearn.base import BaseEstimator, TransformerMixin
+from joblib import Parallel, delayed
 
 
 class MARS(BaseEstimator, TransformerMixin):
@@ -12,6 +13,7 @@ class MARS(BaseEstimator, TransformerMixin):
         self.seed = seed
         self.indexes = indexes # To save the index where the shapelet is the closest to the time series
         self.shapelets = None
+        self.n_jobs = -1
 
 # ---------------------- Main Functions ----------------------
 
@@ -32,7 +34,7 @@ class MARS(BaseEstimator, TransformerMixin):
         if self.indexes:
             indexes_dataset = []
 
-        for idx, ts in enumerate(time_series_dataset):
+        def process_ts(idx, ts):
             print('Calculating distances for TS #', idx)
             ts_distances = []
             ts_indexes = []
@@ -46,8 +48,13 @@ class MARS(BaseEstimator, TransformerMixin):
 
                 ts_distances.append(dist)
 
-            distances_dataset.append(ts_distances)
+            return ts_distances, ts_indexes
 
+        # Use joblib to parallelize the computation for each time series
+        results = Parallel(n_jobs=self.n_jobs)(delayed(process_ts)(idx, ts) for idx, ts in enumerate(time_series_dataset))
+
+        for ts_distances, ts_indexes in results:
+            distances_dataset.append(ts_distances)
             if self.indexes:
                 indexes_dataset.append(ts_indexes)
 
@@ -153,3 +160,38 @@ class MARS(BaseEstimator, TransformerMixin):
 # mars = MARS(num_shapelets=10, max_len=10, min_len=5, async_limit=None, seed=42, indexes=False)
 # mars.fit(X_train)
 # transformed_data = mars.transform(X_train)
+
+
+
+'''
+Non-parallelized transform function:
+
+    def transform(self, time_series_dataset):
+        distances_dataset = []
+        if self.indexes:
+            indexes_dataset = []
+
+        for idx, ts in enumerate(time_series_dataset):
+            print('Calculating distances for TS #', idx)
+            ts_distances = []
+            ts_indexes = []
+
+            for shapelet in self.shapelets:
+                if self.indexes:
+                    dist, indexes = self.get_distance_multi_and_indexes(ts, shapelet)
+                    ts_indexes.append(indexes)
+                else:
+                    dist = self.get_distance_multi(ts, shapelet)
+
+                ts_distances.append(dist)
+
+            distances_dataset.append(ts_distances)
+
+            if self.indexes:
+                indexes_dataset.append(ts_indexes)
+
+        if self.indexes:
+            return distances_dataset, indexes_dataset
+        else:
+            return distances_dataset
+'''
