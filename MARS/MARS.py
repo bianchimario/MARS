@@ -27,11 +27,11 @@ class MARS(BaseEstimator, TransformerMixin):
 
         if self.shapelets_indexes == False:
             self.shapelets = self.get_random_shapelets(time_series_dataset)
-            return self
         
         else:
-            self.shapelets, indexes = self.get_random_shapelets(time_series_dataset)
-            return self, indexes
+            self.shapelets, self.shapelets_indexes = self.get_random_shapelets(time_series_dataset)
+        
+        return self
 
 
     def transform(self, time_series_dataset):
