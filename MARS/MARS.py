@@ -5,7 +5,7 @@ from joblib import Parallel, delayed
 
 
 class MARS(BaseEstimator, TransformerMixin):
-    def __init__(self, num_shapelets, max_len, min_len, async_limit=None, seed=None, indexes=False):
+    def __init__(self, num_shapelets, max_len, min_len, async_limit=None, seed=None, indexes=False, shapelets_indexes=False):
         self.num_shapelets = num_shapelets # Number of shapelets to extract
         self.max_len = max_len # Max length of the shapelet (same for each dimension)
         self.min_len = min_len
@@ -14,6 +14,7 @@ class MARS(BaseEstimator, TransformerMixin):
         self.indexes = indexes # To save the index where the shapelet is the closest to the time series
         self.shapelets = None
         self.n_jobs = -1
+        self.shapelets_indexes = False
 
 # ---------------------- Main Functions ----------------------
 
@@ -23,8 +24,15 @@ class MARS(BaseEstimator, TransformerMixin):
         '''
         if self.seed is not None:
             random.seed(self.seed)
-        self.shapelets = self.get_random_shapelets(time_series_dataset)
-        return self
+
+        if self.shapelets_indexes == False:
+            self.shapelets = self.get_random_shapelets(time_series_dataset)
+            return self
+        
+        else:
+            self.shapelets, indexes = self.get_random_shapelets(time_series_dataset)
+            return self, indexes
+
 
     def transform(self, time_series_dataset):
         '''
@@ -105,7 +113,7 @@ class MARS(BaseEstimator, TransformerMixin):
                 single_shapelet = [ts[dim][start_idx:start_idx + random_length] for dim in range(0, dims)]
                 shapelets.append(single_shapelet)
 
-        return shapelets
+        return shapelets, random_ts
 
 # ---------------------- Calculating distances ----------------------
 
