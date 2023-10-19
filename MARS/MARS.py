@@ -26,7 +26,7 @@ class MARS(BaseEstimator, TransformerMixin):
             random.seed(self.seed)
 
         if self.shapelet_indexes == False:
-            self.shapelets = self.get_random_shapelets(time_series_dataset)
+            self.shapelets, _ = self.get_random_shapelets(time_series_dataset)
         
         else:
             self.shapelets, self.shapelet_indexes = self.get_random_shapelets(time_series_dataset)
