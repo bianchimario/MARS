@@ -14,7 +14,7 @@ class MARS(BaseEstimator, TransformerMixin):
         self.indexes = indexes # To save the index where the shapelet is the closest to the time series
         self.shapelets = None
         self.n_jobs = -1
-        self.shapelets_indexes = shapelet_indexes
+        self.shapelet_indexes = shapelet_indexes
 
 # ---------------------- Main Functions ----------------------
 
@@ -29,7 +29,7 @@ class MARS(BaseEstimator, TransformerMixin):
             self.shapelets = self.get_random_shapelets(time_series_dataset)
         
         else:
-            self.shapelets, self.shapelets_indexes = self.get_random_shapelets(time_series_dataset)
+            self.shapelets, self.shapelet_indexes = self.get_random_shapelets(time_series_dataset)
         
         return self
 
