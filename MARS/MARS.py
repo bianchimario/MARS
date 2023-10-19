@@ -5,7 +5,7 @@ from joblib import Parallel, delayed
 
 
 class MARS(BaseEstimator, TransformerMixin):
-    def __init__(self, num_shapelets, max_len, min_len, async_limit=None, seed=None, indexes=False):
+    def __init__(self, num_shapelets, max_len, min_len, async_limit=None, seed=None, indexes=False, shapelet_indexes = True):
         self.num_shapelets = num_shapelets # Number of shapelets to extract
         self.max_len = max_len # Max length of the shapelet (same for each dimension)
         self.min_len = min_len
@@ -14,7 +14,7 @@ class MARS(BaseEstimator, TransformerMixin):
         self.indexes = indexes # To save the index where the shapelet is the closest to the time series
         self.shapelets = None
         self.n_jobs = -1
-        self.shapelets_indexes = None
+        self.shapelets_indexes = shapelet_indexes
 
 # ---------------------- Main Functions ----------------------
 
