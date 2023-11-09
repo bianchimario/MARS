@@ -7,11 +7,6 @@ MARS' shapelets are:
 + Asynchronous: (by default) the different dimension of the shapelets can be extracted from different timestamps and they are compared with each timestamp of the time series.
 + Random: shapelets are extracted randomly for the sake of computation time.
 
-Parameters:
-+ time series dataset: time series must be in the Awkward [2] format.
-+ num_permutations:  number of random shapelets to extract from each time series.
-+ len_shapelet: dimensional length of each shapelet.
-+ async_shapelets: boolean, if False the dimensions of the shapelets are extracted from the same starting point.
 
 ## How to install
 ```
