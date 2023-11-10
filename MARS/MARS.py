@@ -44,7 +44,7 @@ class MARS(BaseEstimator, TransformerMixin):
             indexes_dataset = []
 
         def process_ts(idx, ts):
-            print('Calculating distances for TS #', idx)
+            #print('Calculating distances for TS #', idx)
             ts_distances = []
             ts_indexes = []
 
@@ -182,7 +182,6 @@ Non-parallelized transform function:
             indexes_dataset = []
 
         for idx, ts in enumerate(time_series_dataset):
-            print('Calculating distances for TS #', idx)
             ts_distances = []
             ts_indexes = []
 
