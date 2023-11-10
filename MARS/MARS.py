@@ -86,7 +86,7 @@ class MARS(BaseEstimator, TransformerMixin):
 
         shapelets = []
         #random_ts = random.sample(range(0, len(time_series_dataset)), self.num_shapelets) # indexes of the time series that generate a shapelet without repetitions
-        random_ts = [random.randint(range(0, len(time_series_dataset))) for _ in range(self.num_shapelets)] # indexes of the time series that generate a shapelet
+        random_ts = [random.randint(0, len(time_series_dataset)) for _ in range(self.num_shapelets)] # indexes of the time series that generate a shapelet
 
         for idx in random_ts:
             ts = time_series_dataset[idx]
