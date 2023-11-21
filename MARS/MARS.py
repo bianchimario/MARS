@@ -6,7 +6,7 @@ from joblib import Parallel, delayed
 
 class MARS(BaseEstimator, TransformerMixin):
     def __init__(self, num_shapelets, max_len, min_len, async_limit=None, seed=None, 
-                 indexes=False, shapelet_indexes = True, n_jobs=-1):
+                 indexes=False, shapelet_indexes = True, n_jobs=1):
         self.num_shapelets = num_shapelets # Number of shapelets to extract
         self.max_len = max_len # Max length of the shapelet (same for each dimension)
         self.min_len = min_len
