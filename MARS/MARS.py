@@ -99,7 +99,7 @@ class MARS(BaseEstimator, TransformerMixin):
                     single_shapelet.append(ts[dim][start_idx:start_idx + random_length])
                 shapelets.append(single_shapelet)
 
-            else:
+            elif self.async_limit > 0:
                 single_shapelet = []
                 random_length = random.randint(self.min_len, self.max_len)
                 min_start_idx = random.randint(0, self.max_len - random_length)
@@ -107,6 +107,12 @@ class MARS(BaseEstimator, TransformerMixin):
                 for dim in range(0, dims):
                     start_idx = random.randint(min_start_idx, max_start_idx)
                     single_shapelet.append(ts[dim][start_idx:start_idx + random_length])
+                shapelets.append(single_shapelet)
+
+            elif self.async_limit <= 0:
+                random_length = random.randint(self.min_len, self.max_len)
+                start_idx = random.randint(0, self.max_len - random_length)
+                single_shapelet = [ts[dim][start_idx:start_idx + random_length] for dim in range(0, dims)]
                 shapelets.append(single_shapelet)
 
         return shapelets, random_ts
