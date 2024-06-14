@@ -7,6 +7,13 @@ MARS' shapelets are:
 + Asynchronous: (by default) the different dimension of the shapelets can be extracted from different timestamps and they are compared with each timestamp of the time series.
 + Random: shapelets are extracted randomly for the sake of computation time.
 
+![alt text](img/crash_fp_shp_0.png)
+![alt text](img/crash_fp_shp_1.png)
+![alt text](img/crash_fp_shp_2.png)
+![alt text](img/crash_tp_shp_0.png)
+![alt text](img/crash_tp_shp_1.png)
+![alt text](img/crash_tp_shp_2.png)  
+
 
 ## How to install
 ```
