@@ -7,14 +7,6 @@ MARS' shapelets are:
 + Asynchronous: (by default) the different dimension of the shapelets can be extracted from different timestamps and they are compared with each timestamp of the time series.
 + Random: shapelets are extracted randomly for the sake of computation time.
 
-![alt text](img/crash_fp_shp_0.png)
-![alt text](img/crash_fp_shp_1.png)
-![alt text](img/crash_fp_shp_2.png)
-![alt text](img/crash_tp_shp_0.png)
-![alt text](img/crash_tp_shp_1.png)
-![alt text](img/crash_tp_shp_2.png)  
-
-
 ## How to install
 ```
 pip install git+https://github.com/bianchimario/MARS
@@ -25,6 +17,15 @@ pip install git+https://github.com/bianchimario/MARS
 + scipy
 + random
 + awkward
+
+## Explanation examples
+![alt text](img/crash_fp_shp_0.png)
+![alt text](img/crash_fp_shp_1.png)
+![alt text](img/crash_fp_shp_2.png)
+![alt text](img/crash_tp_shp_0.png)
+![alt text](img/crash_tp_shp_1.png)
+![alt text](img/crash_tp_shp_2.png)  
+
 
 ## References
 [1] Ye, Lexiang, and Eamonn Keogh. ‘Time Series Shapelets: A Novel Technique That Allows Accurate, Interpretable and Fast Classification’. Data Mining and Knowledge Discovery 22, no. 1–2 (January 2011): 149–82. https://doi.org/10.1007/s10618-010-0179-5. <br>

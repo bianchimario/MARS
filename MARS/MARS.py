@@ -168,10 +168,6 @@ class MARS(BaseEstimator, TransformerMixin):
             indexes_list.append(idx)
         return tot_dist, indexes_list
 
-# Usage example
-# mars = MARS(num_shapelets=10, max_len=10, min_len=5, async_limit=None, seed=42, indexes=False)
-# mars.fit(X_train)
-# transformed_data = mars.transform(X_train)
 
 
 
