@@ -1,5 +1,7 @@
 # Multivariate Asynchronous Random Shapelets (MARS)
 
+MARS is an interpretable shapelet-based classifier that uses the novel concept of multivariate asynchronous shapelets. It can handle highly irregular and unbalanced time series dataset, outperforming state-of-the-art classifiers and anomaly detection algorithms.
+
 Shapelets are time series subsequences that are maximally representative of a class [1]. <br>
 
 MARS' shapelets are:
