@@ -44,19 +44,17 @@ class MARS(BaseEstimator, TransformerMixin):
             indexes_dataset = []
 
         def process_ts(idx, ts):
-            #print('Calculating distances for TS #', idx)
             ts_distances = []
             ts_indexes = []
-
-            for shapelet in self.shapelets:
-                if self.indexes:
+            if self.indexes:
+                for shapelet in self.shapelets:
                     dist, indexes = self.get_distance_multi_and_indexes(ts, shapelet)
+                    ts_distances.append(dist)
                     ts_indexes.append(indexes)
-                else:
+            else:
+                for shapelet in self.shapelets:
                     dist = self.get_distance_multi(ts, shapelet)
-
-                ts_distances.append(dist)
-
+                    ts_distances.append(dist)
             return ts_distances, ts_indexes
 
         # Use joblib to parallelize the computation for each time series
@@ -68,11 +66,11 @@ class MARS(BaseEstimator, TransformerMixin):
                 indexes_dataset.append(ts_indexes)
 
         if self.indexes:
-            return distances_dataset, indexes_dataset
+            return np.array(distances_dataset), indexes_dataset
         else:
-            return distances_dataset
+            return np.array(distances_dataset)
 
-# ---------------------- Getting the shapelets ---------------------- 
+# ---------------------- Getting the shapelets ----------------------
 
     def get_random_shapelets(self, time_series_dataset):
         if self.seed is not None:
@@ -126,46 +124,59 @@ class MARS(BaseEstimator, TransformerMixin):
         Distance from a univariate time series to a univariate shapelet.
         '''
         shapelet_len = len(shapelet)
-        # Create a sliding window view of the time_series for efficient calculation
-        time_series_windows = np.lib.stride_tricks.sliding_window_view(time_series, shapelet_len)
-        # Calculate distances for all windows simultaneously
-        distances = np.linalg.norm(time_series_windows - shapelet, axis=1)
-        min_dist = np.min(distances)
-        return min_dist
+        windows = np.lib.stride_tricks.sliding_window_view(time_series, shapelet_len)
+        diff = windows - shapelet
+        # Work in squared space: argmin is preserved, sqrt only on the minimum
+        sq_dists = np.einsum('ij,ij->i', diff, diff)
+        return np.sqrt(np.min(sq_dists))
 
     def get_distance_multi(self, multivariate_time_series, multivariate_shapelet):
         '''
         Distance from a multivariate time series and a multivariate shapelet.
         The distance is intended as the sum of the distances on each dimension.
         '''
-        tot_dist = 0
-        for dim in range(len(multivariate_shapelet)):
-            dim_dist = self.get_distance(multivariate_time_series[dim], multivariate_shapelet[dim])
-            tot_dist += dim_dist
-        return tot_dist
+        shapelet_len = len(multivariate_shapelet[0])
+        # windows: (dims, n_windows, shapelet_len)
+        windows = np.array([
+            np.lib.stride_tricks.sliding_window_view(multivariate_time_series[d], shapelet_len)
+            for d in range(len(multivariate_shapelet))
+        ])
+        shapelet_arr = np.array(multivariate_shapelet)  # (dims, shapelet_len)
+        diff = windows - shapelet_arr[:, np.newaxis, :]  # (dims, n_windows, shapelet_len)
+        # sq_dists: (dims, n_windows) — sqrt only on the per-dim minimum
+        sq_dists = np.einsum('ijk,ijk->ij', diff, diff)
+        return float(np.sum(np.sqrt(np.min(sq_dists, axis=1))))
 
     def get_distance_and_index(self, time_series, shapelet):
         '''
         Same as get_distance(), but stores the index.
         '''
         shapelet_len = len(shapelet)
-        time_series_windows = np.lib.stride_tricks.sliding_window_view(time_series, shapelet_len)
-        distances = np.linalg.norm(time_series_windows - shapelet, axis=1)
-        min_dist = np.min(distances)
-        min_dist_idx = np.argmin(distances)
-
-        return min_dist, min_dist_idx
+        windows = np.lib.stride_tricks.sliding_window_view(time_series, shapelet_len)
+        diff = windows - shapelet
+        sq_dists = np.einsum('ij,ij->i', diff, diff)
+        min_idx = np.argmin(sq_dists)
+        return np.sqrt(sq_dists[min_idx]), int(min_idx)
 
     def get_distance_multi_and_indexes(self, multivariate_time_series, multivariate_shapelet):
         '''
         Same as get_distances_multi(), but stores the indexes.
         '''
-        tot_dist = 0
-        indexes_list = []
-        for dim in range(len(multivariate_shapelet)):
-            dim_dist, idx = self.get_distance_and_index(multivariate_time_series[dim], multivariate_shapelet[dim])
-            tot_dist += dim_dist
-            indexes_list.append(idx)
+        shapelet_len = len(multivariate_shapelet[0])
+        # windows: (dims, n_windows, shapelet_len)
+        windows = np.array([
+            np.lib.stride_tricks.sliding_window_view(multivariate_time_series[d], shapelet_len)
+            for d in range(len(multivariate_shapelet))
+        ])
+        shapelet_arr = np.array(multivariate_shapelet)  # (dims, shapelet_len)
+        diff = windows - shapelet_arr[:, np.newaxis, :]  # (dims, n_windows, shapelet_len)
+        # Squared distances: einsum computes sum(diff²) along shapelet axis → (dims, n_windows)
+        # We stay in squared space to find argmin: argmin(d²) == argmin(d), avoiding n_windows sqrt calls
+        sq_dists = np.einsum('ijk,ijk->ij', diff, diff)
+        # argmin is the same in squared or normal space, so we can extract the index directly
+        indexes_list = list(np.argmin(sq_dists, axis=1))
+        # sqrt only on the per-dim minimum (dims values), not on all windows
+        tot_dist = float(np.sum(np.sqrt(np.min(sq_dists, axis=1))))
         return tot_dist, indexes_list
 
 
